@@ -8,8 +8,8 @@ terraform {
   required_version = ">= 1.3.0"
 
   cloud {
+    # terraform cloud org, workspaces name
     organization = "cloudacode"
-
     workspaces {
       name = "vpc-provisioing-ipam"
     }
@@ -22,12 +22,8 @@ provider "aws" {
 
 locals {
   region = "us-east-1"
-  name   = "cloudacode-dev"
+  name   = "cloudacode"
   azs    = ["${local.region}a", "${local.region}b", "${local.region}c"]
-  tags = {
-    Org = "cloudacode.com"
-    Env = "dev"
-  }
 
   # Calculate subnet cidrs from previewed IPAM CIDR
   preview_partition = cidrsubnets(data.aws_vpc_ipam_preview_next_cidr.this.cidr, 2, 2, 2)
@@ -58,10 +54,10 @@ data "aws_vpc_ipam_preview_next_cidr" "this" {
 ################################################################################
 
 # Provision IPv4 VPC
-module "vpc" {
+module "vpc-prod" {
   source = "terraform-aws-modules/vpc/aws"
 
-  name = local.name
+  name = "${local.name}-prod"
 
   use_ipam_pool       = true
   ipv4_ipam_pool_id   = data.aws_vpc_ipam_pool.this.id
@@ -71,7 +67,10 @@ module "vpc" {
   private_subnets = cidrsubnets(local.preview_partition[0], 2, 2, 2)
   public_subnets  = cidrsubnets(local.preview_partition[1], 2, 2, 2)
 
-  tags = local.tags
+  tags = {
+    Org = "cloudacode.com"
+    Env = "prod"
+  }
 }
 
 ################################################################################
