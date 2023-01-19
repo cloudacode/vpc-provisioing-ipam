@@ -22,11 +22,11 @@ provider "aws" {
 
 locals {
   region = "us-east-1"
-  name   = "cloudacode-prod"
+  name   = "cloudacode-dev"
   azs    = ["${local.region}a", "${local.region}b", "${local.region}c"]
   tags = {
     Org = "cloudacode.com"
-    Env = "prod"
+    Env = "dev"
   }
 
   # Calculate subnet cidrs from previewed IPAM CIDR
